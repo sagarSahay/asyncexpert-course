@@ -3,6 +3,8 @@ using BenchmarkDotNet.Attributes;
 
 namespace Dotnetos.AsyncExpert.Homework.Module01.Benchmark
 {
+    using System;
+
     [DisassemblyDiagnoser(exportCombinedDisassemblyReport: true)]
     public class FibonacciCalc
     {
@@ -26,14 +28,42 @@ namespace Dotnetos.AsyncExpert.Homework.Module01.Benchmark
         [ArgumentsSource(nameof(Data))]
         public ulong RecursiveWithMemoization(ulong n)
         {
-            return 0;
+            var fibs = new ulong[n + 1];
+            Array.Fill<ulong>(fibs,999999);
+
+            return fib(n, fibs);
+        }
+
+        private ulong fib(ulong n, ulong[] fibs)
+        {
+            if (n == 0 || n == 1)
+            {
+                return n;
+            }
+
+            if (fibs[n] == 999999)
+            {
+                fibs[n] = fib(n - 1, fibs) + fib(n - 2, fibs);
+            }
+
+            return fibs[n];
         }
         
         [Benchmark]
         [ArgumentsSource(nameof(Data))]
         public ulong Iterative(ulong n)
         {
-            return 0;
+            ulong previousPreviousNumber = 0;
+            ulong previuousNumber = 0;
+            ulong currentNumber = 1;
+
+            for (ulong i = 1; i < n; i++)
+            {
+                previousPreviousNumber = previuousNumber;
+                previuousNumber = currentNumber;
+                currentNumber = previuousNumber + previousPreviousNumber;
+            }
+            return currentNumber;
         }
 
         public IEnumerable<ulong> Data()
